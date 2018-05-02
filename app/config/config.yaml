@@ -1,0 +1,63 @@
+# default false
+release_mode: false
+
+# default DEBUG, DEBUG INFO WARN ERROR OFF
+log_level: "DEBUG"
+
+# REDIS,FILE,COOKIE(COOKIE Default)
+session_store: "REDIS"
+
+# REDIS,MEMCACHED,IN_MEMORY(IN_MEMORY Default)
+cache_store: "REDIS"
+
+app:
+  name: "Echo Web"
+
+server:
+  graceful: true
+  address: ":8080"
+
+  # Domains
+  domain_api: "api."
+
+  api_secret: "Kgp3Tzk"
+
+static:
+  # BINDATA,FILE(FILE Default)
+  type: "BINDATA"
+
+tmpl:
+  # PONGO2,TEMPLATE(TEMPLATE Default)
+  type: "PONGO2"
+  # BINDATA,FILE(FILE Default)
+  data: "BINDATA"
+  # PONGO2(template/pongo2),TEMPLATE(template)
+  dir: "template/pongo2"
+  # .html,.tpl
+  suffix: ".html"
+
+database:
+  engine: "mysql"
+  dsn: "root:123456@tcp(127.0.0.1:3306)/gin-web?charset=utf8"
+  max_idle: 20
+  max_open: 20
+
+redis:
+  address: "127.0.0.1:6379"
+  password: ""
+  max_idle: 5
+
+cache:
+  address: "127.0.0.1:6379"
+  password: ""
+  expiration: 3600
+
+opentracing:
+  disable: true
+  # jaeger or appdash
+  type: "jaeger"
+  # jaeger serviceName
+  service_name: "iris-web"
+  # jaeger-agent 127.0.0.1:6831
+  # appdash http://localhost:8700
+  address: "127.0.0.1:6831"

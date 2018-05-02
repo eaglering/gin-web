@@ -1,0 +1,11 @@
+package: .
+import:
+- package: golang.org/x/net
+- package: golang.org/x/crypto
+- package: golang.org/x/sys
+- package: github.com/gin-gonic/gin
+- package: github.com/fvbock/endless
+- package: google.golang.org/appengine
+  version: v1.0.0
+- package: github.com/gin-contrib/cache
+
