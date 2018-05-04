@@ -7,7 +7,23 @@ import (
 	"gopkg.in/yaml.v2"
 	"strings"
 	"strconv"
+	"github.com/gin-gonic/gin"
 )
+
+func JSONFormat(data ...interface{}) gin.H {
+	length := len(data)
+	switch length {
+	case 1:
+		return gin.H{
+			"msg": data[0],
+		}
+	default:
+		return gin.H{
+			"msg": data[0],
+			"data": data[1],
+		}
+	}
+}
 
 func YAML(YAMLFile string, config interface{}) error {
 	if _, err := os.Stat(YAMLFile); err != nil {
@@ -17,7 +33,7 @@ func YAML(YAMLFile string, config interface{}) error {
 		if err != nil {
 			return errors.New(err.Error())
 		}
-		err = yaml.Unmarshal(configBytes, &config)
+		err = yaml.Unmarshal(configBytes, config)
 		if err != nil {
 			return errors.New(err.Error())
 		}

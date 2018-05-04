@@ -5,6 +5,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	. "gin-web/app/config"
 	"sync"
+	"time"
 )
 
 var (
@@ -16,8 +17,15 @@ func Instance() *xorm.Engine {
 	once.Do(func() {
 		var err error
 		db, err = xorm.NewEngine(Config.DB.Engine, Config.DB.Dsn)
+
+		db.TZLocation, err = time.LoadLocation("Asia/Shanghai")
+		if err != nil {
+			panic(err)
+		}
+
 		db.SetMaxIdleConns(Config.DB.MaxIdle)
 		db.SetMaxOpenConns(Config.DB.MaxOpen)
+
 		if err != nil {
 			panic(err)
 		}

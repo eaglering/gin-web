@@ -16,10 +16,6 @@ app:
 server:
   graceful: true
   address: ":8080"
-
-  # Domains
-  domain_api: "api."
-
   api_secret: "Kgp3Tzk"
 
 static:
@@ -38,7 +34,7 @@ tmpl:
 
 database:
   engine: "mysql"
-  dsn: "root:123456@tcp(127.0.0.1:3306)/gin-web?charset=utf8"
+  dsn: "root:123456@tcp(127.0.0.1:3306)/codingman?charset=utf8"
   max_idle: 20
   max_open: 20
 

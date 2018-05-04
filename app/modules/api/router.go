@@ -3,15 +3,23 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"gin-web/app/modules/api/controllers"
-	"gin-web/app/modules/api/middlewares"
 )
 
-func Routers(app *gin.Engine) {
-	apiRouter := app.Group("/api")
-	apiRouter.Use(middlewares.Env{}.New())
-
-	c := controllers.Hello{}
-	hello := apiRouter.Group("/hello")
-	hello.GET("", c.Index)
+func Routers(router *gin.Engine) {
+	api := router.Group("/api")
+	{
+		any := api.Group("/any")
+		{
+			c := &controllers.Hello{}
+			any.GET("/hello", c.Index)
+			any.GET("/database", c.TestDb)
+		}
+		//env := &middlewares.Env{}
+		//safe := api.Group("/safe", env.New())
+		//{
+		//	c := &controllers.Hello{}
+		//	safe.GET("/hello", c.Index)
+		//}
+	}
 
 }

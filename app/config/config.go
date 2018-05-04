@@ -7,15 +7,15 @@ import (
 
 var (
 	Config		config
-	configFile = "app/config/config.toml"
+	configFile = "app/config/config.yaml"
 )
 
 type config struct {
-	ReleaseMode bool   `toml:"release_mode"`
-	LogLevel    string `toml:"log_level"`
+	ReleaseMode bool   `yaml:"release_mode"`
+	LogLevel    string `yaml:"log_level"`
 
-	SessionStore string `toml:"session_store"`
-	CacheStore   string `toml:"cache_store"`
+	SessionStore string `yaml:"session_store"`
+	CacheStore   string `yaml:"cache_store"`
 
 	// 应用配置
 	App app
@@ -26,7 +26,7 @@ type config struct {
 	Server server
 
 	// MySQL
-	DB database `toml:"database"`
+	DB database `yaml:"database"`
 
 	// 静态资源
 	Static static
@@ -39,46 +39,43 @@ type config struct {
 }
 
 type app struct {
-	Name string `toml:"name"`
+	Name string `yaml:"name"`
 }
 
 type server struct {
-	Graceful bool   `toml:"graceful"`
-	Address     string `toml:"address"`
-
-	DomainApi    string `toml:"domain_api"`
-
-	ApiSecret string `toml:"api_secret"`
+	Graceful 	bool   `yaml:"graceful"`
+	Address     string `yaml:"address"`
+	ApiSecret 	string `yaml:"api_secret"`
 }
 
 type static struct {
-	Type string `toml:"type"`
+	Type string `yaml:"type"`
 }
 
 type tmpl struct {
-	Type   string `toml:"type"`   // PONGO2,TEMPLATE(TEMPLATE Default)
-	Data   string `toml:"data"`   // BINDATA,FILE(FILE Default)
-	Dir    string `toml:"dir"`    // PONGO2(template/pongo2),TEMPLATE(template)
-	Suffix string `toml:"suffix"` // .html,.tpl
+	Type   string `yaml:"type"`   // PONGO2,TEMPLATE(TEMPLATE Default)
+	Data   string `yaml:"data"`   // BINDATA,FILE(FILE Default)
+	Dir    string `yaml:"dir"`    // PONGO2(template/pongo2),TEMPLATE(template)
+	Suffix string `yaml:"suffix"` // .html,.tpl
 }
 
 type database struct {
-	Engine   string `toml:"engine"`
-	Dsn		 string `toml:"dsn"`
-	MaxIdle  int	`toml:"max_idle"`
-	MaxOpen  int	`toml:"max_open"`
+	Engine   string `yaml:"engine"`
+	Dsn		 string `yaml:"dsn"`
+	MaxIdle  int	`yaml:"max_idle"`
+	MaxOpen  int	`yaml:"max_open"`
 }
 
 type cache struct {
-	Address string `toml:"address"`
-	Password    string `toml:"password"`
-	Expiration time.Duration	`toml:"expiration"`
+	Address string `yaml:"address"`
+	Password    string `yaml:"password"`
+	Expiration time.Duration	`yaml:"expiration"`
 }
 
 type redis struct {
-	Address string `toml:"address"`
-	Password    string `toml:"password"`
-	MaxIdle int    `toml:"max_idle"`
+	Address string `yaml:"address"`
+	Password    string `yaml:"password"`
+	MaxIdle int    `yaml:"max_idle"`
 }
 
 func InitConfig() error {

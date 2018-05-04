@@ -3,7 +3,6 @@ package app
 import (
 	. "gin-web/app/config"
 	"github.com/gin-gonic/gin"
-	"github.com/fvbock/endless"
 	"gin-web/app/modules/api"
 	"gin-web/app/common/pools/databases"
 	"github.com/go-xorm/xorm"
@@ -11,6 +10,7 @@ import (
 	"gin-web/app/common/pools/caches"
 	"gin-web/app/common/pools/redis"
 	redis2 "github.com/garyburd/redigo/redis"
+	"log"
 )
 
 func setupRouter(app *gin.Engine) {
@@ -30,15 +30,23 @@ func setupRedis() *redis2.Pool {
 }
 
 func Bootstrap() {
-	app := gin.Default()
 	// 配置初始化
 	if err := InitConfig(); err != nil {
 		panic(err)
 	}
 
+	if Config.ReleaseMode {
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
+	}
+	app := gin.Default()
+
 	setupRouter(app)
+
 	db := setupDatabase()
 	defer db.Close()
+	log.Println(db)
 
 	cache := setupCache()
 	defer cache.Close()
@@ -46,10 +54,10 @@ func Bootstrap() {
 	rs := setupRedis()
 	defer rs.Close()
 
-	if Config.Server.Graceful {
-		endless.ListenAndServe(Config.Server.Address, app)
-	} else {
-		app.Run()
-	}
+	//if Config.Server.Graceful {
+	//	endless.ListenAndServe(Config.Server.Address, app)
+	//} else {
+		app.Run(Config.Server.Address)
+	//}
 
 }
