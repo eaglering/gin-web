@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"github.com/gin-gonic/gin"
-	"fmt"
 	"crypto/md5"
 	"encoding/hex"
 	"strings"
@@ -12,7 +11,6 @@ import (
 	"time"
 	redis2 "github.com/garyburd/redigo/redis"
 	"gin-web/app/common/libraries/feature"
-	. "gin-web/app/config"
 )
 
 const (
@@ -35,21 +33,23 @@ func (m *Env) New() gin.HandlerFunc {
 		sign := c.Request.Header.Get("Signature")
 
 		if m.OS == "" || m.Version == "" || timestamp == "" || token == "" || sign == "" {
-			c.AbortWithStatus(http.StatusBadRequest)
+			c.AbortWithStatus(http.StatusServiceUnavailable)
+			return
 		}
 		t, err := strconv.ParseInt(timestamp, 10, 64)
 		now := time.Now().Unix()
 		if err != nil || now - t < 10 * 60 {
-			c.AbortWithStatus(http.StatusServiceUnavailable)
+			c.AbortWithStatus(http.StatusRequestTimeout)
+			return
 		}
-		result := m.checkSign(fmt.Sprintf("timestamp=%v%v", timestamp, Config.Server.ApiSecret), sign)
-		if !result {
-			c.AbortWithStatus(http.StatusServiceUnavailable)
-		}
-		m.User, err = m.getUserInfo(token)
-		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
-		}
+		// Open Signature check
+		//result := m.checkSign(fmt.Sprintf("os=%v&version=%v&timestamp=%v%v",
+		//	m.OS, m.Version, timestamp, Config.Server.ApiSecret), sign)
+		//if !result {
+		//	c.AbortWithStatus(http.StatusUnauthorized)
+		//	return
+		//}
+		m.User, _ = m.getUserInfo(token)
 		m.Features = &feature.Features{}
 		m.Features.Init(DefaultConfig, feature.Condition{
 			OS: m.OS,
@@ -72,4 +72,14 @@ func (m *Env) getUserInfo (token string) (map[string]string, error) {
 	conn := r.Get()
 	defer conn.Close()
 	return redis2.StringMap(conn.Do("GET", token))
+}
+
+func (m *Env) Authorize() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if m.User == nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		c.Next()
+	}
 }

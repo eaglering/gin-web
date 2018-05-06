@@ -7,12 +7,15 @@ import (
 	"log"
 	"gin-web/app/common/models"
 	"gin-web/app/common/helpers"
+	"gin-web/app/common/pools/caches"
+	"gin-web/app/common/pools/redis"
+	redis2 "github.com/garyburd/redigo/redis"
 )
 
 type Hello struct{}
 
-func (c *Hello) Index(context *gin.Context) {
-	context.JSON(http.StatusOK, helper.JSONFormat("hello", gin.H{
+func (c *Hello) Index(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, helper.JSONFormat("hello", gin.H{
 		"name": "eaglering",
 	}))
 }
@@ -22,25 +25,21 @@ func (c *Hello) Index(context *gin.Context) {
  * 	  go get github.com/go-xorm/cmd
  * Then, generate codes for Go:
  *    xorm reverse -s mysql root:password@tcp(host:port)/database?charset=utf8 \
- *        src/github.com/go-xorm/cmd/xorm/templates/goxorm/struct.go.tpl \
+ *        src/github.com/go-xorm/cmd/xorm/templates/goxorm \
  *        src/gin-web/app/common/models
  */
-func (c *Hello) TestDb(context *gin.Context) {
+func (c *Hello) TestDb(ctx *gin.Context) {
 	db := databases.Instance()
 	log.Println(db)
-	user := &models.DUsers{
+	user := &models.Users{
 		Id: 1,
-		Mobile: "12345678901",
-		Nickname: "eaglering",
-		Sex: models.Mail,
-		Country: "中国",
-		Language: "zh-CN",
+		Name: "eaglering",
 	}
 	_, err := db.InsertOne(user)
 	if err != nil {
 		log.Println(err)
 	}
-	u := &models.DUsers{
+	u := &models.Users{
 		Id: 1,
 	}
 	has, err := db.Get(u)
@@ -48,5 +47,30 @@ func (c *Hello) TestDb(context *gin.Context) {
 		log.Println(err)
 	}
 	log.Println(has)
-	context.JSON(http.StatusOK, helper.JSONFormat("", u))
+	ctx.JSON(http.StatusOK, helper.JSONFormat("", u))
+}
+
+func (c *Hello) TestCache(ctx *gin.Context) {
+	cache := caches.Instance()
+	err := cache.Set("test", "" , caches.Forever)
+	if err != nil {
+		log.Println(err)
+	}
+	var result interface{}
+	err = cache.Get("test", &result)
+	if err != nil {
+		log.Println(err)
+	}
+	ctx.JSON(http.StatusOK, helper.JSONFormat("", result))
+}
+
+func (c *Hello) TestRedis(ctx *gin.Context) {
+	r := redis.Instance()
+	conn := r.Get()
+	defer conn.Close()
+	result, err := redis2.String(conn.Do("GET", "test"))
+	if err != nil {
+		log.Println(err)
+	}
+	ctx.JSON(http.StatusOK, helper.JSONFormat("", result))
 }
