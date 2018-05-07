@@ -91,7 +91,7 @@ func InitConfig() error {
 		LogLevel:    "debug",
 	}
 
-	return helper.YAML(configFile, &Config)
+	return helpers.YAML(configFile, &Config)
 }
 
 const (

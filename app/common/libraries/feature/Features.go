@@ -32,7 +32,7 @@ type Features struct {
 }
 
 func (f *Features) Init(YAMLFile string, env Condition) {
-	helper.YAML(YAMLFile, &f.features)
+	helpers.YAML(YAMLFile, &f.features)
 	for _, feature := range f.features  {
 		if feature.Condition.OS != All && feature.Condition.OS != env.OS{
 			continue
@@ -44,7 +44,7 @@ func (f *Features) Init(YAMLFile string, env Condition) {
 				feature.Condition.Version.Operator = ">"
 			}
 		}
-		ok := helper.VersionCompare(
+		ok := helpers.VersionCompare(
 			env.Version.Origin,
 			feature.Condition.Version.Origin,
 			feature.Condition.Version.Operator)

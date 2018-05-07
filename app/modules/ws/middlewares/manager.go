@@ -1,8 +1,7 @@
-package manager
+package middlewares
 
 import (
 	"github.com/gorilla/websocket"
-	"sync"
 	"encoding/json"
 	"time"
 	"log"
@@ -27,40 +26,17 @@ type Manager struct{
 }
 
 type Client struct {
-	Uid		string
+	User	map[string]string
 	UUID 	string
 	Conn	*websocket.Conn
 	Send	chan []byte
 }
 
 type Message struct {
-	Sender	string `json:"sender,omitempty"`
-	Type	string `json:"type,omitempty"`
+	Sender string `json:"sender,omitempty"`
 	Recipient string `json:"recipient,omitempty"`
 	URI  	string `json:"uri,omitempty"`
 	Content string `json:"content,omitempty"`
-}
-
-var (
-	manager Manager
-	once sync.Once
-)
-
-func Instance() Manager {
-	once.Do(func() {
-		manager = Manager{
-			Register: make(chan *Client),
-			Unregister: make(chan *Client),
-			Broadcast: make(chan []byte),
-			Clients: make(map[*Client]bool),
-		}
-		manager.New()
-	})
-	return manager
-}
-
-func (m *Manager) GET(uri string, handlerFunc gin.HandlerFunc) {
-	m.router[uri] = handlerFunc
 }
 
 func (m *Manager) New() {
@@ -86,9 +62,13 @@ func (m *Manager) New() {
 	}
 }
 
-func (c *Client) Read() {
+func (m *Manager) GET (uri string, handlerFunc gin.HandlerFunc) {
+	m.router[uri] = handlerFunc
+}
+
+func (m *Manager) Read(c *Client) {
 	defer func() {
-		manager.Unregister <- c
+		m.Unregister <- c
 		c.Conn.Close()
 	}()
 	c.Conn.SetReadLimit(maxMessageSize)
@@ -110,22 +90,22 @@ func (c *Client) Read() {
 		}
 		var msg Message
 		err = json.Unmarshal([]byte(message), &msg)
-		if err != nil || manager.router[msg.URI] == nil{
+		if err != nil || m.router[msg.URI] == nil{
 			continue
 		}
 		ctx := &gin.Context{
 			Params: gin.Params{
-				{Key:"from", Value:c.Uid},
-				{Key:"sender", Value:c.UUID},
 				{Key:"recipient", Value:msg.Recipient},
 				{Key:"content", Value:msg.Content},
 			},
 		}
-		manager.router[msg.URI](ctx)
+		ctx.Set("manager", m)
+		ctx.Set("sender", c)
+		m.router[msg.URI](ctx)
 	}
 }
 
-func (c *Client) Write() {
+func (m *Manager) Write(c *Client) {
 	//ticker := time.NewTicker(time.Duration(Config.WebSocket.PongTimeout * 9 / 10))
 	defer func() {
 		//ticker.Stop()

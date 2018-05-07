@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"gin-web/app/modules/api/controllers"
-	"gin-web/app/modules/api/middlewares"
+	"gin-web/app/common/middlewares"
 )
 
 func Routers(router *gin.Engine) {

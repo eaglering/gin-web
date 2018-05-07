@@ -13,3 +13,4 @@ import:
 - package: github.com/gorilla/websocket
   version: v1.2.0
 - package: github.com/golibs/uuid
+- package: github.com/lunny/log

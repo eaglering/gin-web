@@ -2,28 +2,42 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"gin-web/app/modules/ws/middlewares/manager"
 	"github.com/lunny/log"
+	"encoding/json"
+	"gin-web/app/modules/ws/middlewares"
+	"gin-web/app/common/helpers"
 )
 
 type Chat struct{}
 
 func (c *Chat) Person(ctx *gin.Context) {
-	from := ctx.GetString("from")
-	sender := ctx.GetString("sender")
-	recipient := ctx.GetString("recipient")
-	content := ctx.GetString("content")
+	s, _ := ctx.Get("sender")
+	sender := s.(middlewares.Client)
+	recipient, has := ctx.Params.Get("recipient")
+	if !has || recipient == "" {
+		sender.Send <- []byte(helpers.ERROR)
+	}
+	content, has := ctx.Params.Get("content")
+	if !has || content == "" {
+		sender.Send <- []byte(helpers.ERROR)
+	}
 
-	m := manager.Instance()
-	for client, _ := range m.Clients {
+	m, _ := ctx.Get("manager")
+	manager := m.(middlewares.Manager)
+	for client, _ := range manager.Clients {
 		if client.UUID == recipient {
 			// todo
-			log.Println(from)
-			log.Println(sender)
+			log.Println(sender.User)
 			log.Println(content)
-			client.Send <- []byte(content)
 			log.Println(client)
-			break
+			cResponse, _ := json.Marshal(gin.H{
+				"sender": sender.UUID,
+				"content": content,
+			})
+			client.Send <- cResponse
+			sender.Send <- []byte(helpers.SUCCESS)
+			return
 		}
 	}
+	sender.Send <- []byte(helpers.ERROR)
 }

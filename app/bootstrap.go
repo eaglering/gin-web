@@ -11,10 +11,12 @@ import (
 	"gin-web/app/common/pools/redis"
 	redis2 "github.com/garyburd/redigo/redis"
 	"log"
+	"gin-web/app/modules/ws"
 )
 
 func setupRouter(app *gin.Engine) {
 	api.Routers(app)
+	ws.Routers(app)
 }
 
 func setupDatabase() *xorm.Engine {

@@ -49,7 +49,7 @@ func (m *Env) New() gin.HandlerFunc {
 		//	c.AbortWithStatus(http.StatusUnauthorized)
 		//	return
 		//}
-		m.User, _ = m.getUserInfo(token)
+		m.User, _ = m.GetUserInfo(token)
 		m.Features = &feature.Features{}
 		m.Features.Init(DefaultConfig, feature.Condition{
 			OS: m.OS,
@@ -67,7 +67,7 @@ func (m *Env) checkSign(signString string, sign string) bool {
 	return hex.EncodeToString(cipher) == strings.ToLower(sign)
 }
 
-func (m *Env) getUserInfo (token string) (map[string]string, error) {
+func (m *Env) GetUserInfo (token string) (map[string]string, error) {
 	r := redis.Instance()
 	conn := r.Get()
 	defer conn.Close()

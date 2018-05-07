@@ -15,7 +15,7 @@ import (
 type Hello struct{}
 
 func (c *Hello) Index(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, helper.JSONFormat("hello", gin.H{
+	ctx.JSON(http.StatusOK, helpers.JSONFormat("hello", gin.H{
 		"name": "eaglering",
 	}))
 }
@@ -47,7 +47,7 @@ func (c *Hello) TestDb(ctx *gin.Context) {
 		log.Println(err)
 	}
 	log.Println(has)
-	ctx.JSON(http.StatusOK, helper.JSONFormat("", u))
+	ctx.JSON(http.StatusOK, helpers.JSONFormat("", u))
 }
 
 func (c *Hello) TestCache(ctx *gin.Context) {
@@ -61,7 +61,7 @@ func (c *Hello) TestCache(ctx *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	ctx.JSON(http.StatusOK, helper.JSONFormat("", result))
+	ctx.JSON(http.StatusOK, helpers.JSONFormat("", result))
 }
 
 func (c *Hello) TestRedis(ctx *gin.Context) {
@@ -72,5 +72,5 @@ func (c *Hello) TestRedis(ctx *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	ctx.JSON(http.StatusOK, helper.JSONFormat("", result))
+	ctx.JSON(http.StatusOK, helpers.JSONFormat("", result))
 }
