@@ -8,4 +8,8 @@ import:
 - package: google.golang.org/appengine
   version: v1.0.0
 - package: github.com/gin-contrib/cache
-
+- package: gopkg.in/gin-gonic/gin.v1
+  version: v1.2
+- package: github.com/gorilla/websocket
+  version: v1.2.0
+- package: github.com/golibs/uuid

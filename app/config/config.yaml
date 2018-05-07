@@ -48,6 +48,9 @@ cache:
   password: ""
   expiration: 3600
 
+websocket:
+  pong_timeout: 60
+
 opentracing:
   disable: true
   # jaeger or appdash

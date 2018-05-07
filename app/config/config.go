@@ -36,6 +36,9 @@ type config struct {
 
 	// Cache
 	Cache cache
+
+	// WebSocket
+	WebSocket websocket
 }
 
 type app struct {
@@ -76,6 +79,10 @@ type redis struct {
 	Address string `yaml:"address"`
 	Password    string `yaml:"password"`
 	MaxIdle int    `yaml:"max_idle"`
+}
+
+type websocket struct {
+	PongTimeout int	`yaml:"pong_timeout"`
 }
 
 func InitConfig() error {

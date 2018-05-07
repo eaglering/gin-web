@@ -26,11 +26,11 @@ type Env struct {
 
 func (m *Env) New() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		m.OS = c.Request.Header.Get("OS")
-		m.Version = c.Request.Header.Get("Version")
-		timestamp := c.Request.Header.Get("Timestamp")
-		token := c.Request.Header.Get("Token")
-		sign := c.Request.Header.Get("Signature")
+		m.OS = c.Request.Header.Get("os")
+		m.Version = c.Request.Header.Get("version")
+		timestamp := c.Request.Header.Get("timestamp")
+		token := c.Request.Header.Get("token")
+		sign := c.Request.Header.Get("signature")
 
 		if m.OS == "" || m.Version == "" || timestamp == "" || token == "" || sign == "" {
 			c.AbortWithStatus(http.StatusServiceUnavailable)
