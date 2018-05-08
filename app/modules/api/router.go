@@ -14,6 +14,7 @@ func Routers(router *gin.Engine) {
 		{
 			c := &controllers.Hello{}
 			any.GET("/hello", c.Index)
+			any.GET("/login", c.Login)
 			any.GET("/database", c.TestDb)
 			any.GET("/cache", c.TestCache)
 			any.GET("/redis", c.TestRedis)

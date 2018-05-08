@@ -11,6 +11,7 @@ import (
 	"time"
 	redis2 "github.com/garyburd/redigo/redis"
 	"gin-web/app/common/libraries/feature"
+	"encoding/json"
 )
 
 const (
@@ -32,7 +33,7 @@ func (m *Env) New() gin.HandlerFunc {
 		token := c.Request.Header.Get("token")
 		sign := c.Request.Header.Get("signature")
 
-		if m.OS == "" || m.Version == "" || timestamp == "" || token == "" || sign == "" {
+		if m.OS == "" || m.Version == "" || timestamp == "" || sign == "" {
 			c.AbortWithStatus(http.StatusServiceUnavailable)
 			return
 		}
@@ -49,7 +50,9 @@ func (m *Env) New() gin.HandlerFunc {
 		//	c.AbortWithStatus(http.StatusUnauthorized)
 		//	return
 		//}
-		m.User, _ = m.GetUserInfo(token)
+		if token != "" {
+			m.User, _ = m.GetUserInfo(token)
+		}
 		m.Features = &feature.Features{}
 		m.Features.Init(DefaultConfig, feature.Condition{
 			OS: m.OS,
@@ -67,11 +70,19 @@ func (m *Env) checkSign(signString string, sign string) bool {
 	return hex.EncodeToString(cipher) == strings.ToLower(sign)
 }
 
-func (m *Env) GetUserInfo (token string) (map[string]string, error) {
+func (m *Env) GetUserInfo (token string) (result map[string]string, err error) {
 	r := redis.Instance()
 	conn := r.Get()
 	defer conn.Close()
-	return redis2.StringMap(conn.Do("GET", token))
+	t, err := redis2.Bytes(conn.Do("GET", token))
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(t, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, err
 }
 
 func (m *Env) Authorize() gin.HandlerFunc {

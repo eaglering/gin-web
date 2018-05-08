@@ -40,15 +40,17 @@ func Routers(router *gin.Engine) {
 			log.Println(err)
 			return
 		}
+		log.Println(conn)
 		m := &middlewares2.Manager{
 			Register: make(chan *middlewares2.Client),
 			Unregister: make(chan *middlewares2.Client),
 			Broadcast: make(chan []byte),
 			Clients: make(map[*middlewares2.Client]bool),
+			Router: make(map[string]gin.HandlerFunc),
 		}
-		m.New()
 		wsRouter(m)
 
+		go m.New()
 		client := &middlewares2.Client{User: user, UUID: uuid.Rand().Hex(), Conn: conn, Send: make(chan []byte)}
 		m.Register <- client
 

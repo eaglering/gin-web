@@ -82,7 +82,7 @@ type redis struct {
 }
 
 type websocket struct {
-	PongTimeout int	`yaml:"pong_timeout"`
+	PongTimeout time.Duration	`yaml:"pong_timeout"`
 }
 
 func InitConfig() error {

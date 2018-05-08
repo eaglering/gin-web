@@ -21,11 +21,12 @@ func (c *Chat) Person(ctx *gin.Context) {
 	if !has || content == "" {
 		sender.Send <- []byte(helpers.ERROR)
 	}
-
+	// todo
 	m, _ := ctx.Get("manager")
 	manager := m.(middlewares.Manager)
 	for client, _ := range manager.Clients {
-		if client.UUID == recipient {
+		// Online
+		if client.User["uid"] == recipient {
 			// todo
 			log.Println(sender.User)
 			log.Println(content)
@@ -39,5 +40,6 @@ func (c *Chat) Person(ctx *gin.Context) {
 			return
 		}
 	}
+	// Offline
 	sender.Send <- []byte(helpers.ERROR)
 }

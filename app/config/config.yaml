@@ -8,7 +8,7 @@ log_level: "DEBUG"
 session_store: "REDIS"
 
 # REDIS,MEMCACHED,IN_MEMORY(IN_MEMORY Default)
-cache_store: "REDIS"
+cache_store: "IN_MEMORY"
 
 app:
   name: "Echo Web"
@@ -39,12 +39,12 @@ database:
   max_open: 20
 
 redis:
-  address: "127.0.0.1:6379"
+  address: "192.168.1.199:6379"
   password: ""
   max_idle: 5
 
 cache:
-  address: "127.0.0.1:6379"
+  address: "192.168.1.199:6379"
   password: ""
   expiration: 3600
 

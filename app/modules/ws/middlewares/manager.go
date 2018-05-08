@@ -22,7 +22,7 @@ type Manager struct{
 	Broadcast	chan []byte
 	Register	chan *Client
 	Unregister	chan *Client
-	router		map[string]gin.HandlerFunc
+	Router		map[string]gin.HandlerFunc
 }
 
 type Client struct {
@@ -44,11 +44,13 @@ func (m *Manager) New() {
 		select {
 		case conn := <-m.Register:
 			m.Clients[conn] = true
+			log.Printf("Register: %v", conn)
 		case conn := <-m.Unregister:
 			if _, ok := m.Clients[conn]; ok {
 				close(conn.Send)
 				delete(m.Clients, conn)
 			}
+			log.Printf("Unregister: %v", conn)
 		case message := <-m.Broadcast:
 			for conn := range m.Clients {
 				select {
@@ -63,7 +65,7 @@ func (m *Manager) New() {
 }
 
 func (m *Manager) GET (uri string, handlerFunc gin.HandlerFunc) {
-	m.router[uri] = handlerFunc
+	m.Router[uri] = handlerFunc
 }
 
 func (m *Manager) Read(c *Client) {
@@ -73,9 +75,9 @@ func (m *Manager) Read(c *Client) {
 	}()
 	c.Conn.SetReadLimit(maxMessageSize)
 	if Config.WebSocket.PongTimeout > 0 {
-		c.Conn.SetReadDeadline(time.Now().Add(time.Duration(Config.WebSocket.PongTimeout)))
+		c.Conn.SetReadDeadline(time.Now().Add(Config.WebSocket.PongTimeout * time.Second))
 		c.Conn.SetPongHandler(func(string) error {
-			c.Conn.SetReadDeadline(time.Now().Add(time.Duration(Config.WebSocket.PongTimeout)))
+			c.Conn.SetReadDeadline(time.Now().Add(Config.WebSocket.PongTimeout * time.Second))
 			return nil
 		})
 	}
@@ -88,9 +90,10 @@ func (m *Manager) Read(c *Client) {
 			}
 			break
 		}
+		log.Printf("%v say: %v", c, message)
 		var msg Message
 		err = json.Unmarshal([]byte(message), &msg)
-		if err != nil || m.router[msg.URI] == nil{
+		if err != nil || m.Router[msg.URI] == nil{
 			continue
 		}
 		ctx := &gin.Context{
@@ -101,7 +104,7 @@ func (m *Manager) Read(c *Client) {
 		}
 		ctx.Set("manager", m)
 		ctx.Set("sender", c)
-		m.router[msg.URI](ctx)
+		m.Router[msg.URI](ctx)
 	}
 }
 
@@ -121,6 +124,7 @@ func (m *Manager) Write(c *Client) {
 				return
 			}
 			c.Conn.WriteMessage(websocket.TextMessage, message)
+			log.Printf("send to %v: %v", c, message)
 		//case <-ticker.C:
 		//	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 		//	if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {

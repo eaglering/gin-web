@@ -10,6 +10,7 @@ import (
 	"gin-web/app/common/pools/caches"
 	"gin-web/app/common/pools/redis"
 	redis2 "github.com/garyburd/redigo/redis"
+	"encoding/json"
 )
 
 type Hello struct{}
@@ -18,6 +19,19 @@ func (c *Hello) Index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, helpers.JSONFormat("hello", gin.H{
 		"name": "eaglering",
 	}))
+}
+
+func (c *Hello) Login(ctx *gin.Context) {
+	r := redis.Instance()
+	conn := r.Get()
+	defer conn.Close()
+	content, _ := json.Marshal(map[string]string{
+		"uid": "1",
+		"mobile": "15711550782",
+		"nickname": "豆腐",
+	})
+	conn.Do("SET", "TOKEN_1234567890", content)
+	ctx.JSON(http.StatusOK, gin.H{})
 }
 
 /**
